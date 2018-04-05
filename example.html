@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>button-controls test - A-Frame</title>
+    <meta name="description" content="should update when button pressed or mousedown is fired">
+    <script src="https://aframe.io/releases/0.7.1/aframe.min.js"></script>
+    <!--<script src="https://rawgit.com/aframevr/aframe/master/dist/aframe-master.min.js"></script>-->
+    <script src="https://rawgit.com/feiss/aframe-environment-component/master/dist/aframe-environment-component.min.js"></script>
+    <script src="aframe-button-controls.js"></script>
+    <script>
+        AFRAME.registerComponent('button-controls-test', {
+            init: function () {
+                let sceneEl = this.el;
+                console.log("button-controls-test init");
+
+                let signEl = document.getElementById('sign');
+                signEl.setAttribute('value', "button-controls-test init");
+
+                let controlsEl = document.getElementById('controls');
+                controlsEl.addEventListener('buttondown', function (evt) {
+                    console.log(evt);
+                    signEl.setAttribute('value', evt.detail.controllerId + " " + evt.detail.index + " " + evt.type);
+                });
+                controlsEl.addEventListener('buttonup', function (evt) {
+                    console.log(evt);
+                    signEl.setAttribute('value', evt.detail.controllerId + " " + evt.detail.index + " " + evt.type);
+                });
+            }
+        });
+    </script>
+</head>
+<body>
+<a-scene button-controls-test>
+    <a-entity environment></a-entity>
+    <a-text id="sign" width=5 position="-2 1.5 -2" anchor="left" value="Message"
+            material="color: darkgreen"></a-text>
+
+    <a-entity id="controls" button-controls="debug: true;"></a-entity>
+</a-scene>
+</body>
+</html>
