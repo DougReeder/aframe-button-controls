@@ -71,7 +71,12 @@ AFRAME.registerComponent('button-controls', {
 
                         let buttonsPressed = [];
                         for (let j=0; j<gamepad.buttons.length; ++j) {
-                            buttonsPressed.push(gamepad.buttons[j].pressed)
+                            buttonsPressed.push(gamepad.buttons[j].pressed);
+                            if (gamepad.buttons[j].pressed) {
+                                this.el.emit('buttondown', new GamepadButtonEvent('buttondown', gamepad.id, j, gamepad.buttons[j]));
+                            } else {
+                                this.el.emit('buttonup', new GamepadButtonEvent('buttonup', gamepad.id, j, gamepad.buttons[j]));
+                            }
                         }
                         this.buttons[gamepad.id] = buttonsPressed;
                     }
