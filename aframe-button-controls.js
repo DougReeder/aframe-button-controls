@@ -17,7 +17,51 @@ AFRAME.registerComponent('button-controls', {
     },
 
     init: function () {
+        let component = this;
         this.buttons = {};   // keys are controller ids, values are array of booleans
+
+        // There's no gamepad event for non-Chrome browsers in VR mode, any browser in flat mode, mobile nor destop
+        let sceneEl = document.querySelector('a-scene');
+        if ('PointerEvent' in window) {
+            addListeners('pointerdown', 'pointerup');
+        } else if ('TouchEvent' in window) {
+            console.log("No Pointer events, falling back to Touch events");
+            addListeners('touchstart', 'touchend');
+        } else {
+            console.log("No Pointer nor Touch events, falling back to mouse events");
+            addListeners('mousedown', 'mouseup');
+        }
+
+        function addListeners(downEventName, upEventName) {
+            sceneEl.addEventListener(downEventName, function (evt) {
+                // TODO: remove next line when no one's on A-Frame 0.8.0 or below
+                if (evt.target.classList.contains('a-enter-vr-button')) {
+                    return;
+                }
+                if (component.data.debug) {
+                    console.log(downEventName, evt.target);
+                }
+                component.el.emit('buttondown', new GamepadButtonEvent('buttondown', 'screen', 0, {
+                    pressed: true,
+                    value: 1.0
+                }));
+                evt.stopPropagation();
+            });
+            sceneEl.addEventListener(upEventName, function (evt) {
+                // TODO: remove next line when no one's on A-Frame 0.8.0 or below
+                if (evt.target.classList.contains('a-enter-vr-button')) {
+                    return;
+                }
+                if (component.data.debug) {
+                    console.log(upEventName, evt.target);
+                }
+                component.el.emit('buttonup', new GamepadButtonEvent('buttonup', 'screen', 0, {
+                    pressed: false,
+                    value: 0.0
+                }));
+                evt.stopPropagation();
+            });
+        }
 
         if (this.data.debug) {
             console.log("button-controls init - this.data:", this.data);
@@ -25,6 +69,7 @@ AFRAME.registerComponent('button-controls', {
                 console.log("vrdisplaypresentchange", event.display.isPresenting);
                 this.gamepadsListed = false;
             });
+
             window.addEventListener("gamepadconnected", function (e) {
                 console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
                     e.gamepad.index, e.gamepad.id,
@@ -34,9 +79,7 @@ AFRAME.registerComponent('button-controls', {
                 console.log("Gamepad disconnected from index %d: %s",
                     e.gamepad.index, e.gamepad.id);
             });
-        }
 
-        if (this.data.debug && ! this.gamepadsListed) {
             let gamepads = navigator.getGamepads();
             console.log("gamepads:", gamepads);
         }
