@@ -23,6 +23,7 @@ AFRAME.registerComponent('button-controls', {
         // There's no gamepad event for non-Chrome browsers in VR mode, any browser in flat mode, mobile nor destop
         let sceneEl = document.querySelector('a-scene');
         if ('PointerEvent' in window) {
+            console.log("Using Pointer events for button-controls");
             addListeners('pointerdown', 'pointerup');
         } else if ('TouchEvent' in window) {
             console.log("No Pointer events, falling back to Touch events");
@@ -45,7 +46,9 @@ AFRAME.registerComponent('button-controls', {
                     pressed: true,
                     value: 1.0
                 }));
-                evt.stopPropagation();
+                if (downEventName !== 'mousedown') {
+                    evt.stopPropagation();
+                }
             });
             sceneEl.addEventListener(upEventName, function (evt) {
                 // TODO: remove next line when no one's on A-Frame 0.8.0 or below
@@ -59,7 +62,9 @@ AFRAME.registerComponent('button-controls', {
                     pressed: false,
                     value: 0.0
                 }));
-                evt.stopPropagation();
+                if (upEventName !== 'mouseup') {
+                    evt.stopPropagation();
+                }
             });
         }
 
