@@ -1,0 +1,29 @@
+{
+  "name": "aframe-button-controls",
+  "version": "1.0.1",
+  "description": "An A-Frame WebVR component that supports the controller functionality available everywhere - buttons. Especially useful for apps designed to be usable with Google Cardboard V2, Gear VR without a separate Controller, mobile and desktop.",
+  "main": "aframe-button-controls.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DougReeder/aframe-button-controls.git"
+  },
+  "keywords": [
+    "button",
+    "control",
+    "cardboard",
+    "aframe",
+    "aframe-component",
+    "webvr",
+    "vr",
+    "mobile-vr"
+  ],
+  "author": "Doug Reeder <reeder.29@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DougReeder/aframe-button-controls/issues"
+  },
+  "homepage": "https://github.com/DougReeder/aframe-button-controls#readme"
+}

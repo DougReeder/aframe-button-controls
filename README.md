@@ -2,7 +2,7 @@ aframe-button-controls
 ===
 
 An [A-Frame](https://aframe.io) [WebVR](https://webvr.info/) component that supports the controller functionality
-available everywhere - buttons.  Especially usedful for apps designed to be usable with Google Cardboard V2, Gear VR
+available everywhere - buttons.  Especially useful for apps designed to be usable with Google Cardboard V2, Gear VR
 without a separate Controller, mobile and desktop.
 
 Fires a **buttondown** event when *any* button on *any* controller is pressed, including the virtual controller in
@@ -24,7 +24,7 @@ Cannot detect the button on Cardboard V1, as the magnetic sensor is not exposed 
 
 Basic use:
 ```html
-	<script src="https://cdn.rawgit.com/DougReeder/aframe-button-controls/v1.0.0/aframe-button-controls.js"></script>
+	<script src="https://unpkg.com/aframe-button-controls@^1.0.1/aframe-button-controls.js"></script>
 	
 	<script>
 		AFRAME.registerComponent('mystuff', {
@@ -49,4 +49,3 @@ Basic use:
 
 If using [aframe-state-component](https://www.npmjs.com/package/aframe-state-component),
 you can create **buttondown** and **buttonup** handlers, instead of calling addEventListener yourself.
- 
