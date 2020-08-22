@@ -17,6 +17,7 @@
     "aframe",
     "aframe-component",
     "webvr",
+    "webxr",
     "vr",
     "mobile-vr"
   ],
