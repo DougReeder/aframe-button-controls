@@ -34,16 +34,29 @@ Basic use:
 	
 	<script>
 		AFRAME.registerComponent('mystuff', {
-			init: function () {
-				let controlsEl = document.querySelector('[button-controls]');
-				controlsEl.addEventListener('buttondown', function (evt) {
-					// ...
-				});
-				controlsEl.addEventListener('buttonup', function (evt) {
-					// ...
-				});
-			}
-		});
+            init: function () {
+                this.handlers = {
+                    buttondown: function (evt) {
+                        // ...
+                    },
+                    buttonup: function (evt) {
+                        // ...
+                    }
+                }
+            },
+
+            play: function () {
+                const controlsEl = document.querySelector('[button-controls]');
+                controlsEl.addEventListener('buttondown', this.handlers.buttondown);
+                controlsEl.addEventListener('buttonup', this.handlers.buttonup);
+            },
+
+            pause: function () {
+                const controlsEl = document.querySelector('[button-controls]');
+                controlsEl.removeEventListener('buttondown', this.handlers.buttondown);
+                controlsEl.removeEventListener('buttonup', this.handlers.buttonup);
+            }
+        });
 	</script>
 
 </head>
