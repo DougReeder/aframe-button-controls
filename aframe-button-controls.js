@@ -109,10 +109,16 @@ AFRAME.registerComponent('button-controls', {
         if (this.data.poll) {
             this.updateControllers({});
             sceneEl.addEventListener('controllersupdated', this.updateControllers);
-        } else {
-            this.addSessionEventListeners();
-            sceneEl.addEventListener('enter-vr', this.addSessionEventListeners);
+            if (!this.pseudoCardboardController) {
+                this.pseudoCardboardController = {
+                    buttons: [{pressed: false}],
+                }; // hack to get around limitations of cardboard controller;
+            }
         }
+        
+        this.addSessionEventListeners();
+        sceneEl.addEventListener('enter-vr', this.addSessionEventListeners);
+
     },
 
     pause: function () {
@@ -128,10 +134,24 @@ AFRAME.registerComponent('button-controls', {
     addSessionEventListeners: function () {
         let sceneEl = this.el.sceneEl;
         if (!sceneEl.xrSession) { return; }
-        sceneEl.xrSession.addEventListener('selectstart', this.emitButton0DownEvent);
-        sceneEl.xrSession.addEventListener('selectend', this.emitButton0UpEvent);
-        sceneEl.xrSession.addEventListener('squeezestart', this.emitButton1DownEvent);
-        sceneEl.xrSession.addEventListener('squeezeend', this.emitButton1UpEvent);
+        if (this.data.poll) {
+            // normally with poll we don't use this method, but it's the only way to capture cardboard button presses.
+            sceneEl.xrSession.addEventListener('selectstart', evt => {
+                if (evt?.target?.inputSources[0]?.targetRayMode === "gaze") {
+                    this.pseudoCardboardController.buttons[0] = {pressed:true};
+                }
+            });
+            sceneEl.xrSession.addEventListener('selectend', evt => {
+                if (evt?.target?.inputSources[0]?.targetRayMode === "gaze") {
+                    this.pseudoCardboardController.buttons[0] = {pressed:false};
+                }
+            });
+        } else {
+            sceneEl.xrSession.addEventListener('selectstart', this.emitButton0DownEvent);
+            sceneEl.xrSession.addEventListener('selectend', this.emitButton0UpEvent);
+            sceneEl.xrSession.addEventListener('squeezestart', this.emitButton1DownEvent);
+            sceneEl.xrSession.addEventListener('squeezeend', this.emitButton1UpEvent);
+        }
     },
 
     removeSessionEventListeners: function () {
@@ -166,7 +186,12 @@ AFRAME.registerComponent('button-controls', {
                 id: inputSource.gamepad.id,
                 buttons: inputSource.gamepad.buttons
             }
-        } else {
+        }
+        else if (inputSource.targetRayMode === "gaze") {
+            gamepad = this.pseudoCardboardController;
+        }
+        else {
+            console.warn("using hardcoded value...?")
             gamepad = {
                 buttons: [{pressed: true, value: 0.75}, {pressed: false, value: 0.25}]
             };
@@ -219,7 +244,7 @@ AFRAME.registerComponent('button-controls', {
                         for (let j=0; j<gamepad.buttons.length; ++j) {
                             let buttonPressed = gamepad.buttons[j].pressed;
                             let oldButtonPressed = component.buttons[gamepad.id][j];
-                            if (buttonPressed && ! oldButtonPressed) {
+                            if (buttonPressed && !oldButtonPressed) {
                                 component.el.emit('buttondown', new GamepadButtonEvent('buttondown', gamepad.id, j, gamepad.buttons[j]));
                             } else if (!buttonPressed && oldButtonPressed) {
                                 component.el.emit('buttonup', new GamepadButtonEvent('buttonup', gamepad.id, j, gamepad.buttons[j]));
