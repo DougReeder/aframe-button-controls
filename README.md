@@ -30,7 +30,7 @@ Cannot detect the button on Cardboard V1, as the magnetic sensor is not exposed 
 
 Basic use:
 ```html
-	<script src="https://unpkg.com/aframe-button-controls@^1.1.0/aframe-button-controls.js"></script>
+	<script src="https://unpkg.com/aframe-button-controls@^1.1.1/aframe-button-controls.js"></script>
 	
 	<script>
 		AFRAME.registerComponent('mystuff', {
