@@ -1,5 +1,5 @@
 // aframe-button-controller.js - lowest common denominator controller support for A-Frame (just buttons)
-// Copyright © 2020 by P. Douglas Reeder under the MIT License
+// Copyright © 2020-2021 by P. Douglas Reeder under the MIT License
 
 function GamepadButtonEvent (type, controllerId, index, details) {
     this.type = type;
@@ -25,6 +25,8 @@ AFRAME.registerComponent('button-controls', {
         this.emitButton0DownEvent = this.emitButtonDownEvent.bind(this, 0);
         this.emitButton1UpEvent = this.emitButtonUpEvent.bind(this, 1);
         this.emitButton1DownEvent = this.emitButtonDownEvent.bind(this, 1);
+        this.captureCardboardDown = this.captureCardboardDown.bind(this);
+        this.captureCardboardUp = this.captureCardboardUp.bind(this);
 
         let component = this;
         this.buttons = {};   // keys are controller ids, values are array of booleans
@@ -109,6 +111,13 @@ AFRAME.registerComponent('button-controls', {
         if (this.data.poll) {
             this.updateControllers({});
             sceneEl.addEventListener('controllersupdated', this.updateControllers);
+            if (!this.pseudoCardboardController) {
+                this.pseudoCardboardController = {
+                    buttons: [{pressed: false}],
+                }; // hack to get around limitations of cardboard controller;
+            }
+            this.addPseudoCardboardControllerListeners();
+            sceneEl.addEventListener('enter-vr', this.addPseudoCardboardControllerListeners);
         } else {
             this.addSessionEventListeners();
             sceneEl.addEventListener('enter-vr', this.addSessionEventListeners);
@@ -119,6 +128,8 @@ AFRAME.registerComponent('button-controls', {
         let sceneEl = this.el.sceneEl;
         if (this.data.poll) {
             sceneEl.removeEventListener('controllersupdated', this.updateControllers);
+            this.removePseudoCardboardControllerListeners();
+            sceneEl.removeEventListener('enter-vr', this.addPseudoCardboardControllerListeners);
         } else {
             this.removeSessionEventListeners();
             sceneEl.removeEventListener('enter-vr', this.addSessionEventListeners);
@@ -159,6 +170,33 @@ AFRAME.registerComponent('button-controls', {
         this.el.emit('buttonup', new GamepadButtonEvent('buttonup', gamepad.id, buttonInd, gamepad.buttons[buttonInd]));
     },
 
+    addPseudoCardboardControllerListeners: function () {
+        let sceneEl = this.el.sceneEl;
+        if (!sceneEl.xrSession) { return; }
+        // normally with poll we don't use this method, but it's the only way to capture cardboard button presses.
+        sceneEl.xrSession.addEventListener('selectstart', this.captureCardboardDown);
+        sceneEl.xrSession.addEventListener('selectend', this.captureCardboardUp);
+    },
+
+    removePseudoCardboardControllerListeners: function () {
+        let sceneEl = this.el.sceneEl;
+        if (!sceneEl.xrSession) { return; }
+        sceneEl.xrSession.removeEventListener('selectstart', this.captureCardboardDown);
+        sceneEl.xrSession.removeEventListener('selectend', this.captureCardboardUp);
+    },
+
+    captureCardboardDown: function (evt) {
+        if (evt.target.inputSources[0].targetRayMode === "gaze") {
+            this.pseudoCardboardController.buttons[0] = {pressed:true};
+        }
+    },
+
+    captureCardboardUp: function (evt) {
+        if (evt.target.inputSources[0].targetRayMode === "gaze") {
+            this.pseudoCardboardController.buttons[0] = {pressed: false};
+        }
+    },
+
     syntheticGamepad: function (inputSource) {
         let gamepad;
         if (inputSource && inputSource.gamepad) {
@@ -166,7 +204,10 @@ AFRAME.registerComponent('button-controls', {
                 id: inputSource.gamepad.id,
                 buttons: inputSource.gamepad.buttons
             }
+        } else if (inputSource.targetRayMode === "gaze") {
+            gamepad = this.pseudoCardboardController;
         } else {
+            console.warn("using hardcoded value...?");
             gamepad = {
                 buttons: [{pressed: true, value: 0.75}, {pressed: false, value: 0.25}]
             };

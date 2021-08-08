@@ -1,6 +1,6 @@
 {
   "name": "aframe-button-controls",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "An A-Frame WebVR component that supports the controller functionality available everywhere - buttons. Especially useful for apps designed to be usable with Google Cardboard V2, Gear VR without a separate Controller, mobile and desktop.",
   "main": "aframe-button-controls.js",
   "scripts": {

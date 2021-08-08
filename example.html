@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <title>button-controls test - A-Frame</title>
     <meta name="description" content="should update when trigger pressed (or screen tapped or mouse clicked)">
-    <script src="https://aframe.io/releases/1.1.0/aframe.min.js"></script>
-    <script src="https://unpkg.com/aframe-environment-component@^2.0/dist/aframe-environment-component.min.js"></script>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component@^1.2.0/dist/aframe-environment-component.min.js"></script>
     <script src="aframe-button-controls.js"></script>
     <script>
         AFRAME.registerComponent('button-controls-test', {
@@ -47,7 +47,7 @@
     <a-text id="sign" width=5 position="-2 1.5 -2" anchor="left" value="Message"
             material="color: darkgreen"></a-text>
 
-    <a-entity button-controls="debug: true;"></a-entity>
+    <a-entity button-controls="poll: true; debug: true;"></a-entity>
 </a-scene>
 </body>
 </html>
