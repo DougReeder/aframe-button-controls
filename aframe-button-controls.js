@@ -1,5 +1,5 @@
 // aframe-button-controller.js - lowest common denominator controller support for A-Frame (just buttons)
-// Copyright © 2020 by P. Douglas Reeder under the MIT License
+// Copyright © 2018–2024 by Doug Reeder under the MIT License
 
 function GamepadButtonEvent (type, controllerId, index, details) {
     this.type = type;
@@ -9,6 +9,7 @@ function GamepadButtonEvent (type, controllerId, index, details) {
     this.value = details.value;
 }
 
+const PERMISSION_MSG = "button-controls requires additional permissions to list the gamepads. If this is running in an IFRAME, add `gamepads` to the `allow` attribute. If this is running as the top-level page, the HTTP `Permissions-Policy` header must not exclude this origin in the `gamepad` directive.";
 
 AFRAME.registerComponent('button-controls', {
     schema: {
@@ -94,8 +95,12 @@ AFRAME.registerComponent('button-controls', {
                     e.gamepad.index, e.gamepad.id);
             });
 
-            let gamepads = navigator.getGamepads();
-            console.log("regular gamepads:", gamepads);
+            try {
+                let gamepads = navigator.getGamepads();
+                console.log("regular gamepads:", gamepads);
+            } catch (err) {
+                console.warn(PERMISSION_MSG, err);
+            }
         }
     },
 
@@ -105,6 +110,7 @@ AFRAME.registerComponent('button-controls', {
     // },
 
     play: function () {
+        this.warnedAboutPermissions = false;
         let sceneEl = this.el.sceneEl;
         if (this.data.poll) {
             this.updateControllers({});
@@ -202,7 +208,16 @@ AFRAME.registerComponent('button-controls', {
         let component = this;
 
         if (component.data.enabled) {
-            let regularGamepads = navigator.getGamepads();   // non-WebXR
+            let regularGamepads;
+            try {
+                regularGamepads = navigator.getGamepads();   // non-WebXR
+            } catch (err) {
+                regularGamepads = [];
+                if (!component.warnedAboutPermissions) {
+                    console.warn(PERMISSION_MSG, err);
+                    component.warnedAboutPermissions = true;
+                }
+            }
             if (component.data.debug && !component.gamepadsListed) {
                 console.log("XR gamepads:", component.xrGamepads, "   regular:", regularGamepads);
                 component.gamepadsListed = true;
